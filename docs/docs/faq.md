@@ -15,6 +15,9 @@ Your MCPX and BIOS dump should be for a 1.0 Xbox. It's suggested that your MCPX 
 #### Q: Do I need to have an EEPROM file?
 A default one will be created if you do not provide one.
 
+#### Q: How do I run xemu in portable mode?
+Create a file named `xemu.toml` in the same directory as the executable (i.e. next to `xemu.exe` on Windows or `xemu` on Linux).
+
 #### Q: Why am I getting `The guest has not initialized the display`
 This is likely due to a mismatch of MCPX and BIOS images, or a corrupt MCPX boot ROM.
 
@@ -42,6 +45,9 @@ You can change the setting in your [dashboard](dashboard.md) or use the [EEPROM 
 #### Q: How can I increase the resolution?
 For all titles the rendering resolution can be easily scaled by navigating to View&rarr;Int. Resolution Scale. For titles that natively support higher resolutions, you can enable the associated mode in your dashboard or by using the [EEPROM editor](eeprom.md).
 
+#### Q: What should I pick for 4k resolution?
+The 'Resolution Scale' number is a scaling factor applied to rendered surface dimensions. Which factor to select for your target resolution depends on the game resolution. When the game is rendering at 480p (typical case), if you want a '4k resolution' (meaning around 4k horizontal res) you can select 6x to get a framebuffer of 3840x2880. Performance may diminish as higher factors are selected.
+
 #### Q: Are there any plans for a mobile port of xemu?
 There are currently no plans for a mobile port of xemu on iOS or Android, the emulator hasn't reached the performance necessary to run well on iOS or Android at this time.
 
@@ -53,3 +59,9 @@ Generally, no. You will need to create a backup of your game disc. Please [see h
 
 #### Q: Why does xemu crash when I enable Surround Sound in my EEPROM?
 This is because Surround Sound isn't implemented in xemu yet, please disable this in your [EEPROM](eeprom.md) if you have it enabled.
+
+#### Q: Where does xemu store game saves?
+Just like on a real Xbox, they are stored on the E partition of the virtual hard drive. The drive contents can be accessed with [FTP](ftp.md).
+
+#### Q: Where does xemu store snapshot (save state) data?
+Snapshot data is stored on the hard drive image, and is not easily extractible.

@@ -9,6 +9,10 @@ Like the virtual hard disk, an XMU is backed by an image file. Create an 8 MiB X
 	```
 	fsutil file createnew xmu.img 8388608
 	```
+	
+	or use [FATXplorer](https://fatxplorer.eaton-works.com/2021/08/18/fatxplorer-3-0-beta-15--formatting-a-file-is-now-supported/).
+	
+	Note: FATXplorer is a 3rd party tool and not maintained or supported directly by xemu project. Use at your own risk.
 
 === "Linux"
 

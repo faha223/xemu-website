@@ -5,7 +5,7 @@ site_description: >-
   A free and open-source application that emulates the original Microsoft
   Xbox game console, enabling people to play their original Xbox games on
   Windows, macOS, and Linux systems.
-copyright: Copyright &copy; 2020 - 2022 xemu Project
+copyright: Copyright &copy; 2020 - 2024 xemu Project
 
 extra_css:
   - stylesheets/extra.css
@@ -25,7 +25,7 @@ extra:
   homepage: https://xemu.app
   social:
   - icon: fontawesome/brands/github
-    link: https://github.com/mborgerson/xemu
+    link: https://github.com/xemu-project/xemu
   - icon: fontawesome/brands/twitter
     link: https://twitter.com/xemu_project
   - icon: fontawesome/brands/patreon
@@ -73,7 +73,7 @@ nav:
   - Home: https://xemu.app
   - Compatibility: https://xemu.app/#compatibility
   - Documentation: /docs/
-  - GitHub: https://github.com/mborgerson/xemu
+  - GitHub: https://github.com/xemu-project/xemu
   - Patreon: https://www.patreon.com/mborgerson
   - About: about.md
   - FAQ: faq.md

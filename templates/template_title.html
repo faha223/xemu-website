@@ -23,6 +23,9 @@
 {% endblock %}
 
 {% block content %}
+<div class="body-alt-section">
+<div class="container">
+
 <!-- Game Identification -->
 <div class="py-5 row flex-md-nowrap text-center text-md-left align-items-center justify-content-center justify-content-md-start">
   {% if title.xtimage_url %}
@@ -43,8 +46,17 @@
   <!-- Game Cover -->
   <div class="col-md-4 text-center">
     <figure class="figure">
-      <a href="{{ title.cover_url }}" class="enlarge-image"><img src="{{ title.cover_url }}" class="img-thumbnail img-fluid" width=350 /></a>
+      <a href="{{ title.cover_url }}" class="enlarge-image"><img src="{{ title.cover_url }}" class="img-thumbnail img-fluid" id="displayed_image" width=350 /></a>
     </figure>
+    <div class="d-block pb-3">
+    <a href="#" onclick="return show_image('{{ title.cover_url }}')">Front</a>
+    {% if title.cover_back_url %}
+    | <a href="#" onclick="return show_image('{{ title.cover_back_url }}')">Back</a>
+    {% endif %}
+    {% if title.disc_url %}
+    | <a href="#" onclick="return show_image('{{ title.disc_url }}')">Disc</a>
+    {% endif %}
+    </div>
   </div>
 
   <!-- Compatibility Details -->
@@ -134,9 +146,14 @@
   </div>
 </div>
 
-<hr />
-<p class="text-muted mt-5"><b>Note:</b> Title compatibility status is provided by volunteer reporters in the community, as the reporter experienced the title in the current version of xemu on their computer at time of reporting. As the project evolves, reports may need to be updated. You are invited to help improve the project by submitting an updated compatibility report. Join the Discord server to learn how to contribute!</p>
-<hr />
+</div>
+</div>
+{% endblock %}
+
+{% block append_footer %}
+<p class="text-muted">
+  <b>Note:</b> Title compatibility status is provided by volunteer reporters in the community, as the reporter experienced the title in the current version of xemu on their computer at time of reporting. As the project evolves, reports may need to be updated. You are invited to help improve the project by submitting an updated compatibility report. Join the Discord server to learn how to contribute!
+</p>
 {% endblock %}
 
 {% block append_foot %}
@@ -152,5 +169,11 @@ $(document).ready(function() {
       }
     });
   });
+
+function show_image(url) {
+  $('.enlarge-image').attr('href', url);
+  $('#displayed_image').attr('src', url);
+  return false;
+}
 </script>
 {% endblock %}

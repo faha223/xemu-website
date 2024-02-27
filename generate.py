@@ -17,15 +17,17 @@ from jinja2 import Environment, FileSystemLoader
 from tqdm import tqdm
 from minify_html import minify as minify_html
 
+gh_token = os.getenv('GH_TOKEN')
+
 output_dir = 'dist'
-repo_url_base = 'https://raw.githubusercontent.com/mborgerson/xemu-website/master/'
+xdb_repo_url_base = 'https://raw.githubusercontent.com/xemu-project/xdb/master/'
 compatibility_reports_url = 'https://reports.xemu.app/compatibility'
 compatibility_reports_url_verify_certs = True
-main_url_base = 'https://xemu.app'
+main_url_base = os.environ.get('BASE_URL', 'https://xemu.app')
 # compatibility_reports_url = 'https://127.0.0.1/compatibility'
 # compatibility_reports_url_verify_certs = False
 
-develop_mode = False
+develop_mode = os.environ.get('DEV', 0) == '1'
 disable_load_issues = develop_mode
 disable_load_reports = develop_mode
 disable_load_version = develop_mode
@@ -60,7 +62,7 @@ class Issue:
         return self.title
 
     @classmethod
-    def load_issues(cls, title_alias_map):
+    def load_issues(cls, title_alias_map, title_lookup):
         """
         Search through all GitHub issues for any title tags to construct a
         list of titles and their associated issues
@@ -69,12 +71,18 @@ class Issue:
             return
         titles_re = re.compile(r'Titles?[:/]\s*([a-fA-f0-9,\s]+)', re.IGNORECASE)
         title_id_re = re.compile(r'([a-fA-f0-9]{8})')
-        for issue in Github().get_user('mborgerson').get_repo('xemu').get_issues(state='all'):
+        for issue in Github(gh_token).get_user('xemu-project').get_repo('xemu').get_issues(state='all'):
             # Look for a titles sequence and pull out anything that looks like
             # an id
             references = ' '.join(titles_re.findall(issue.body or ''))
-            affected_titles = title_id_re.findall(references)
-            cls.all_issues.append(cls(
+            affected_titles = set()
+            for title_id in title_id_re.findall(references):
+                if title_id not in title_alias_map:
+                    print('Warning: Issue %s references unknown title id "%s"' % (issue.url, title_id))
+                    continue
+                affected_titles.add(title_lookup[title_alias_map[title_id]])
+
+            issue = cls(
                 issue.number,
                 issue.html_url,
                 issue.title,
@@ -82,16 +90,17 @@ class Issue:
                 issue.created_at.replace(tzinfo=timezone.utc),
                 issue.updated_at.replace(tzinfo=timezone.utc),
                 issue.closed_at.replace(tzinfo=timezone.utc) if issue.state == 'closed' else None,
-                issue.state))
+                issue.state)
 
-        # Organize issues by title
-        for issue in cls.all_issues:
-            for title_id in issue.affected_titles:
-                if title_id not in title_alias_map:
-                    print('Warning: Issue %s references unknown title id "%s"' % (issue.url, title_id))
-                    continue
-                if issue not in cls.issues_by_title[title_alias_map[title_id]]:
-                    cls.issues_by_title[title_alias_map[title_id]].append(issue)
+            cls.all_issues.append(issue)
+
+            for title in issue.affected_titles:
+                if issue not in cls.issues_by_title[title.info['title_id']]:
+                    cls.issues_by_title[title.info['title_id']].append(issue)
+
+    @property
+    def blocked_titles(self):
+        return {t for t in self.affected_titles if t.status in {'Broken', 'Intro', 'Starts'}}
 
 
 class CompatibilityReport:
@@ -131,6 +140,7 @@ class Title:
         anchor_text = anchor_text.lstrip('-').rstrip('-')
         self.title_url = f"/titles/{self.info['title_id']}#{anchor_text}"
         self.title_path = os.path.dirname(info_path)
+        self.title_xdb_path = self.title_path[4:]
         self.full_title_id_text = '%s-%s' % (self.pubid, self.tid)
         self.full_title_id_hex = self.info['title_id']
         self.full_title_id_num = int(self.info['title_id'], 16)
@@ -144,20 +154,39 @@ class Title:
             if not os.path.exists(os.path.join(self.title_path, self.cover_path)):
                 self.have_cover = False
 
+        self.cover_back_path = None
+        self.cover_back_url = None
+        self.disc_path = None
+        self.disc_path_url = None
+
+        for attr, filename in [
+            ('cover_back_path', 'cover_back.jpg'),
+            ('cover_back_path', 'cover_back.png'),
+            ('disc_path', 'media.jpg'),
+            ('disc_path', 'media.png'),
+            ]:
+            if os.path.exists(os.path.join(self.title_path, filename)):
+                setattr(self, attr, filename)
+        if self.cover_back_path:
+            self.cover_back_url = xdb_repo_url_base + self.title_xdb_path + '/' + self.cover_back_path
+        if self.disc_path:
+            self.disc_url = xdb_repo_url_base + self.title_xdb_path + '/' + self.disc_path
+
         self.have_thumbnail = True
         self.cover_thumbnail_path = 'cover_front_thumbnail.jpg'
         if not os.path.exists(os.path.join(self.title_path, self.cover_thumbnail_path)):
             assert not self.have_cover, "Please create thumbnail for %s" % self.title_name
             self.have_thumbnail = False
 
+
         if self.have_cover:
-            self.cover_url = repo_url_base + self.title_path + '/' + self.cover_path
+            self.cover_url = xdb_repo_url_base + self.title_xdb_path + '/' + self.cover_path
         else:
             print('Note: Missing artwork for %s' % self.title_name)
-            self.cover_url = repo_url_base + '/resources/cover_front_default.png'
+            self.cover_url = xdb_repo_url_base + '/resources/cover_front_defxdb_ault.png'
 
         if self.have_thumbnail:
-            self.cover_thumbnail_url = repo_url_base + self.title_path + '/' + self.cover_thumbnail_path
+            self.cover_thumbnail_url = xdb_repo_url_base + self.title_xdb_path + '/' + self.cover_thumbnail_path
         else:
             if self.have_cover:
                 print('Note: Missing thumbnail for %s' % self.title_name)
@@ -165,7 +194,7 @@ class Title:
 
         xtimage_path = os.path.join(self.title_path, 'xtimage.png')
         if os.path.exists(xtimage_path):
-            self.xtimage_url = repo_url_base + self.title_path + '/xtimage.png'
+            self.xtimage_url = xdb_repo_url_base + self.title_xdb_path + '/xtimage.png'
         else:
             self.xtimage_url = None
 
@@ -214,7 +243,7 @@ def main():
     titles = []
     title_alias_map = {}
     title_lookup = {}
-    for root, dirs, files in os.walk('titles', topdown=True):
+    for root, dirs, files in os.walk('xdb/titles', topdown=True):
         for name in files:
             if name != 'info.json': continue
             title = Title(os.path.join(root,name))
@@ -226,7 +255,7 @@ def main():
     print('  - Found %d' % (len(titles)))
 
     print('Getting GitHub Issues List...')
-    Issue.load_issues(title_alias_map)
+    Issue.load_issues(title_alias_map, title_lookup)
     print('  - Ok. %d issues total' % len(Issue.all_issues))
 
     print('Getting compatibility report list...')
@@ -274,8 +303,8 @@ def main():
         xemu_build_version = '0.7.55'
         xemu_build_date = datetime(2021, 6, 4, 19, 13, 6)
     else:
-        xemu_build_version = requests.get('https://raw.githubusercontent.com/mborgerson/xemu/ppa-snapshot/XEMU_VERSION').text
-        latest_release = Github().get_user('mborgerson').get_repo('xemu').get_latest_release()
+        xemu_build_version = requests.get('https://raw.githubusercontent.com/xemu-project/xemu/ppa-snapshot/XEMU_VERSION').text
+        latest_release = Github(gh_token).get_user('xemu-project').get_repo('xemu').get_latest_release()
         xemu_build_date = latest_release.created_at
 
     print('Rebuilding index...')
@@ -320,6 +349,28 @@ def main():
                 template.render(
                     titles=sorted([t for t in titles if filter_(t)], key=rank)),
                 minify_js=True, minify_css=True))
+    print('  - Ok')
+
+    print('Building top issues table')
+    issues_by_num_affected = [i for i in Issue.all_issues if i.state != 'closed' and i.affected_titles]
+    issues_by_num_affected.sort(key=lambda i: len(i.affected_titles), reverse=True)
+    issues_by_num_blocking = [i for i in issues_by_num_affected if len(i.blocked_titles)]
+    issues_by_num_blocking.sort(key=lambda i: len(i.blocked_titles), reverse=True)
+
+    template = env.get_template('top_issues.html')
+    with open(os.path.join(output_dir, 'top_issues.html'), 'w') as f:
+        f.write(
+            minify_html(
+                template.render(issues_by_num_affected=issues_by_num_affected, issues_by_num_blocking=issues_by_num_blocking),
+                minify_js=True, minify_css=True))
+    print('  - Ok')
+
+    print('Updating download.md with latest build version')
+    with open('docs/docs/download.md', 'r', encoding='utf-8') as f:
+        t = f.read()
+    t = t.replace(r'{{xemu_version}}', xemu_build_version)
+    with open('docs/docs/download.md', 'w', encoding='utf-8') as f:
+        f.write(t)
     print('  - Ok')
 
 if __name__ == '__main__':

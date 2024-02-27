@@ -20,6 +20,22 @@ create a game backup. You can backup your legally purchased games by:
 
 ## Creating ISOs
 
+### xdvdfs (Web or Command Line)
+
+[xdvdfs](https://github.com/antangelo/xdvdfs)
+is a tool that can manage Xbox disc images.
+It is available as a [webapp](https://xiso.antangelo.com/) or as a command line tool.
+
+!!! warning
+
+    xdvdfs does not apply media patching to xbe
+    files within the image. Some games on some
+    BIOSes will not load as a result.
+
+    For maximum compatibility, either
+    apply the patch yourself, or use a BIOS
+    that does this for you (such as m8plus).
+
 ### extract-xiso (Command Line)
 
 [extract-xiso](https://github.com/XboxDev/extract-xiso) is a command-line tool
@@ -69,9 +85,19 @@ you more than likely have this format. As a sanity check, these images are
 typically ~7GB in size.
 
 xemu is not currently compatible with this format, but you can extract the
-second partition of the disc image for use with xemu. Unfortunately there is not
-a GUI-friendly solution for this yet. You will need to use a command-line tool.
-You can do this with utilities such as `dd`, `extract-xiso` or `fallocate` on supported systems.
+second partition of the disc image for use with xemu.
+You can do this with utilities such as `xdvdfs`, `dd`, `extract-xiso` or `fallocate` on supported systems.
+
+=== "Using `xdvdfs`"
+    The [webapp](https://xiso.antangelo.com/) tool is capable of repacking or extracting most redump ISO images
+    by selecting an ISO file as the input. The output file can then be used with xemu.
+
+    The command line tool is also able to repack or extract redump ISO images:
+    ```
+    xdvdfs pack game-redump.iso
+    ```
+
+    You can then use `game-redump.xiso.iso` with xemu.
 
 === "Using `dd`"
     ```

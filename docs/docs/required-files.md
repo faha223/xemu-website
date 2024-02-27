@@ -25,8 +25,9 @@ with `0x02 0xEE`.
 
 ## Flash ROM Image (BIOS)
 
-Xbox compatible BIOS. Just like a real Xbox, running an unmodified retail BIOS will
-not allow booting unofficial software.
+Xbox compatible BIOS. Due to key DRM functions being unimplemented, xemu is
+currently unable to boot games when using an unmodified retail BIOS. You must use
+either a debug BIOS or a modded retail BIOS that can boot unsigned software.
 
 People have reported most success using the modified retail "COMPLEX 4627" BIOS.
 
@@ -35,7 +36,7 @@ People have reported most success using the modified retail "COMPLEX 4627" BIOS.
 You can use a pre-built 8G Xbox HDD image, free of any copyrighted content, and
 only containing a dummy dashboard.
 
-[Download Pre-formatted Xbox Hard Disk Image ](https://github.com/mborgerson/xemu-hdd-image/releases/latest/download/xbox_hdd.qcow2.zip){ .md-button .md-button--secondary }
+[Download Pre-formatted Xbox Hard Disk Image ](https://github.com/xemu-project/xemu-hdd-image/releases/latest/download/xbox_hdd.qcow2.zip){ .md-button .md-button--secondary }
 
 !!! note
     By design, this particular drive image does not contain the official Xbox
@@ -52,4 +53,9 @@ only containing a dummy dashboard.
     **Alternative 2:** Build a new HDD image from scratch
 
     You can also create an Xbox hard-disk image using XboxHDM. Directions on how
-    to do this [can be found here](https://github.com/mborgerson/xemu-hdd-image).
+    to do this [can be found here](https://github.com/xemu-project/xemu-hdd-image).
+    
+    [FATXplorer](https://fatxplorer.eaton-works.com/2021/08/18/fatxplorer-3-0-beta-15--formatting-a-file-is-now-supported/)
+    can also create an Xbox hard-disk image.
+    
+    Note: XboxHDM and FATXplorer are 3rd party tools and not maintained or supported directly by xemu project. Use at your own risk.

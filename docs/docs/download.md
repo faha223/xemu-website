@@ -1,6 +1,6 @@
 ## Download for Windows
 
-[Download for :fontawesome-brands-windows: Windows](https://github.com/mborgerson/xemu/releases/latest/download/xemu-win-release.zip){ .md-button .md-button--secondary }
+[Download for :fontawesome-brands-windows: Windows](https://github.com/xemu-project/xemu/releases/latest/download/xemu-win-release.zip){ .md-button .md-button--secondary }
 
 ### Installation
 
@@ -8,11 +8,11 @@ Simply download the Zip archive release for Windows from the link above, extract
 
 ## Download for macOS
 
-[Download for :fontawesome-brands-apple: macOS](https://github.com/mborgerson/xemu/releases/latest/download/xemu-macos-universal-release.zip){ .md-button .md-button--secondary }
+[Download for :fontawesome-brands-apple: macOS](https://github.com/xemu-project/xemu/releases/latest/download/xemu-macos-universal-release.zip){ .md-button .md-button--secondary }
 
-!!! check ":fontawesome-brands-apple: Apple Silicon Compatibility Note"
+!!! success ":fontawesome-brands-apple: Apple Silicon Compatibility Note"
 
-	This download is a "Universal" binary, and will work on both Intel x86-64 and the new Apple silicon (M1) Mac computers.
+	This release is a "Universal" binary, and will work on both Intel x86-64 and the new Apple Silicon (M1+) Mac computers.
 
 ### Install Manually
 
@@ -28,19 +28,21 @@ If you have the [Homebrew package manager](https://brew.sh) installed, you can i
 
 ## Download for Linux
 
-### Ubuntu PPA (20.04 and newer)
+There are multiple options for running xemu on your Linux system.
 
-Users running recent versions of Ubuntu (20.04 and newer) are recommended to install through the daily build PPA repository. At the command line, run the following:
+### AppImage
 
-```sh
-sudo add-apt-repository ppa:mborgerson/xemu
-sudo apt update
-sudo apt install xemu
-```
+Supported architectures: x86_64
 
-You can now launch xemu through your typical launcher, or by typing `xemu` at the command line.
+[Download AppImage for Linux (x86_64)](https://github.com/xemu-project/xemu/releases/download/v{{xemu_version}}/xemu-v{{xemu_version}}-x86_64.AppImage){ .md-button .md-button--secondary }
+
+!!! info "Running the AppImage"
+
+	The AppImage file needs to be marked executable before it can be run. You can do this in your file browser: navigate to and select the AppImage file, right-click and open file properties, navigate to permissions tab, then enable 'Allow executing file as program'. You can also do this in a terminal, simply with `chmod +x *.AppImage`. Once the AppImage is marked executable it can be 'double-clicked' on to start xemu. See [AppImage documentation](https://docs.appimage.org/user-guide/run-appimages.html#download-make-executable-run) for more information about running AppImages and further system integration.
 
 ### Flatpak
+
+Supported architectures: x86_64 and aarch64
 
 1. [Set up Flatpak](https://www.flatpak.org/setup/)
 
@@ -58,10 +60,24 @@ You can now launch xemu through your typical launcher, or by typing `xemu` at th
 	
 	If you want to whitelist additional directories, you can [do so with Flatseal](troubleshooting.md#flatpak-release-will-not-load-bios-mcpx-rom-hard-drive).
 
+### Ubuntu PPA
+
+Supported architectures: x86_64 and aarch64
+
+Users running recent versions of Ubuntu (20.04 and newer) are recommended to install through the daily build PPA repository. At the command line, run the following:
+
+```sh
+sudo add-apt-repository ppa:mborgerson/xemu
+sudo apt update
+sudo apt install xemu
+```
+
+You can now launch xemu through your typical launcher, or by typing `xemu` at the command line.
+
 ### Build from source
 
 On most Linux distributions, it is also possible to [build from source](dev/building-from-source.md#linux).
 
 ## Previous Releases
 
-You can find older builds of xemu on the [Releases page](https://github.com/mborgerson/xemu/releases).
+You can find older builds of xemu on the [Releases page](https://github.com/xemu-project/xemu/releases).
